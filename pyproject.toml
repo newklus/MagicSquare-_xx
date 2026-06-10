@@ -1,0 +1,9 @@
+[project]
+name = "magic-square-xx"
+version = "0.1.0"
+description = "4×4 partial magic square line validation (MagicSquare_XX session 3)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
