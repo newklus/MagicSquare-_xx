@@ -1,0 +1,55 @@
+# MagicSquare_XX — 세션 3 (.cursorrules 초안)
+
+## 프로젝트 범위
+
+- 4×4 부분 마방진 **검증 + 테스트**만. 풀이·자동 채우기·UI·LLM 연동은 하지 않는다.
+- Mom Test 핵심: **10선** 빠짐없이 판정, 틀린 줄 구체적 반환.
+
+## 도메인 스펙
+
+- 격자: 4×4 정수 2차원 리스트.
+- `0`: 빈칸. 정상 입력은 **빈칸 2개**.
+- 채워진 칸: `1`~`16` 각 **1회**.
+- 마법상수(목표 합): **34**.
+- 검증 대상 **10선** (이름 고정):
+  - 행: `R1`, `R2`, `R3`, `R4`
+  - 열: `C1`, `C2`, `C3`, `C4`
+  - 대각선: `D1`(주대각), `D2`(부대각)
+- 10선 모두 검사한다. 대각선 2개를 빼먹지 않는다.
+
+## API 계약
+
+- 함수: `validate_lines(grid) -> dict`
+- 반환 형식:
+  ```python
+  {
+      "status": "pass" | "fail" | "incomplete",
+      "failed_lines": ["R1", "D2", ...],  # status가 fail일 때만 (그 외 [])
+  }
+  ```
+- `pass`: 빈칸 없음, 1~16 각 1회, 10선 합 모두 34.
+- `incomplete`: `0`(빈칸)이 남아 있어 완성 판정 불가.
+- `fail`: 완성 격자이나 10선 중 하나 이상 합 ≠ 34. `failed_lines`에 **틀린 선 전부** 나열.
+- 구현 파일: `src/validate_lines.py`. 테스트: `tests/test_validate_lines.py`.
+
+## TDD 규칙 (엄격)
+
+- 사이클: **RED → GREEN → REFACTOR** 순서만.
+- **RED**: `tests/`만 수정. `src/`는 건드리지 않는다. 실패하는 테스트를 먼저 쓴다.
+- **GREEN**: 테스트를 통과시키는 **최소** 구현만 `src/`에 추가한다.
+- **REFACTOR**: green 유지하며 중복·이름만 정리.
+- 금지: assert 완화, `@pytest.mark.skip`, `xfail`, `pass`로 테스트 우회.
+- 매 TDD 작업 응답 **첫 줄**에 Phase 선언: `[Phase: RED]`, `[Phase: GREEN]`, `[Phase: REFACTOR]`.
+
+## 코드·테스트 관례
+
+- 테스트 실행: `pytest` (설정은 `pyproject.toml`).
+- 케이스는 최소 3개 방향: 정답(pass), 오류(fail·failed_lines), 빈칸(incomplete).
+- 선 이름은 반드시 `R1`~`R4`, `C1`~`C4`, `D1`, `D2`만 사용한다.
+
+## AI 응답 규칙
+
+- 사용자와의 대화·설명은 **한국어**.
+- 범위 밖(풀이, UI, LLM, 3×3/5×5 일반화) 요청 시 거절하고 검증 범위로 되돌린다.
+- **git commit / push**는 사용자가 명시적으로 요청할 때만 수행한다.
+- 금지: 자동 풀이·빈칸 채우기·힌트, UI, LLM 답 확인, 3×3/5×5 일반화.
